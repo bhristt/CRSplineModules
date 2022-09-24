@@ -1,0 +1,22 @@
+{
+  "name": "Catmull-Rom-Spline",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+
+      "CRSplineModules": {
+        "$className": "Folder",
+        "BaseSpline": {
+          "$path": "src/BaseSpline.lua"
+        },
+        "CatmullRomPath": {
+          "$path": "src/CatmullRomPath.lua"
+        },
+        "CatmullRomSpline": {
+          "$path": "src/CatmullRomSpline.lua"
+        }
+      }
+    }
+  }
+}
