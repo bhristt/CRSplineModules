@@ -32,7 +32,7 @@
     [number] BaseSpline:Curvature([number] t)
     [number] BaseSpline:ArcLength([number] t)
     [number] BaseSpline:TransformRelativeToLength([number] t)
-    [Tween] BaseSpline:CreateTween([Instance] object, [TweenInfo?] tweenInfo, [PropTable] props)
+    [Tween] BaseSpline:CreateTween([Instance] object, [TweenInfo?] tweenInfo, [PropTable] props, [boolean?] relativeToLength)
         type PropTable = {
             [string]: number | Vector2 | Vector3 | CFrame
         }
@@ -96,9 +96,13 @@ end
 
 --[[    Returns the normal Vector3 of a Vector3 constructed
         spline object at the given number t.    ]]
-function BaseSpline:Normal(t: number): VectorQuantity
+function BaseSpline:Normal(t: number): Vector3
 
-    error(PROTOTYPE_ERROR)
+    local dTdt = self:Acceleration(t)
+    if typeof(dTdt ~= "Vector3") then
+        error("BaseSpline:Normal() only works with Vector3 constructed splines!")
+    end
+    return dTdt.Unit
 end
 
 
@@ -107,7 +111,18 @@ end
         number t.    ]]
 function BaseSpline:Curvature(t: number): number
 
-    error(PROTOTYPE_ERROR)
+    local drdt = self:Velocity(t)    --// dr/dt
+    local d2rdt2 = self:Acceleration(t)    --// d^2r/dt^2
+
+    if typeof(drdt) ~= "Vector3" or typeof(d2rdt2) ~= "Vector3" then
+        error("BaseSpline:Curvature() only works with Vector3 constructed splines!")
+    end
+
+    local drdtXd2rdt2 = drdt:Cross(d2rdt2)    --// dr/dt cross d^2r/dt^2
+    local drdtXd2rdt2m = drdtXd2rdt2.Magnitude
+    local drdtm = drdt.Magnitude
+
+    return drdtXd2rdt2m / (drdtm ^ 3)
 end
 
 
@@ -147,7 +162,7 @@ end
 --[[    Returns the arc length of the spline at the given
         number t. This is only an approximation, not the
         exact length of the spline.    ]]
-function BaseSpline:ArcLength(t: number)
+function BaseSpline:ArcLength(t: number): number
 
     local lengthCache = self._LengthCache
     if #lengthCache == 0 then
@@ -222,9 +237,44 @@ end
 
 --[[    Creates a Tween object that can be played to control
         something along the spline    ]]
-function BaseSpline:CreateTween(object: Instance, tweenInfo: TweenInfo?, props: {[string]: number | Vector2 | Vector3 | CFrame}, relativeToLength: boolean?)
+do
 
+    local tweenService = game:GetService("TweenService")
 
+    local function checkVectorValues(tbl: {[any]: any}): boolean
+
+        for i, v in pairs(tbl) do
+            if typeof(v) ~= "number"
+            and typeof(v) ~= "Vector2"
+            and typeof(v) ~= "Vector3" then
+                return false
+            end
+        end
+        return true
+    end
+
+    local function instanceDefaultProperties(instance: Instance, props: {[string]: VectorQuantity}): {[string]: VectorQuantity}
+
+        local defaultProperties = {}
+        for prop, val in pairs(props) do
+            local success, default = pcall(function()
+                return instance[prop]
+            end)
+            if success and typeof(instance[prop]) == typeof(val) then
+                defaultProperties[prop] = default
+            end
+        end
+        return defaultProperties
+    end
+
+    function BaseSpline:CreateTween(
+        object: Instance,
+        tweenInfo: TweenInfo?,
+        props: {[string]: number | Vector2 | Vector3 | CFrame},
+        relativeToLength: boolean?)
+
+        
+    end
 end
 
 

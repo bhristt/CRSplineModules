@@ -1,3 +1,5 @@
+![CRSplineModules V2.0.0](img/a0128e5d63056dca2a524e7ede62c3ce-removebg.png)
+
 # CRSplineModules [V2.0.0]
 
 The **CRSplineModules** are two modules that create `CatmullRomSplines` and link together `CatmullRomSplines`. In essence, CatmullRomSplines are n degree smooth parametric curves that intersect specified points in a given set. If you want to understand the concept of CatmullRomSplines in the 3rd degree, you can visit https://www.cs.cmu.edu/~fp/courses/graphics/asst5/catmullRom.pdf

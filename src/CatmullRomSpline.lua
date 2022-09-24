@@ -40,15 +40,15 @@
 
     [Functions]:
 
-        [void] CatmullRomSpline:_ListenToPositionChange([BasePart] part)
-        [void] CatmullRomSpline:_StopListeningToPositionChange([BasePart] part)
-
         [void] CatmullRomSpline:ChangeTension([number] tension)
         [void] CatmullRomSpline:AddPoint([CatmullRomPoint] point, [number?] index)
         [void] CatmullRomSpline:RemovePoint([number] index)
         [boolean] CatmullRomSpline:IsValidPoint([any] point)
         [{number} | {Vector2} | {Vector3}] CatmullRomSpline:GetVectorPoints()
         [VectorQuantity, VectorQuantity, VectorQuantity, VectorQuantity] CatmullRomSpline:GetVectorConstants()
+
+        [void] CatmullRomSpline:_ListenToPositionChange([BasePart] part)
+        [void] CatmullRomSpline:_StopListeningToPositionChange([BasePart] part)
 
         Inherited from BaseSpline:
 
@@ -130,7 +130,10 @@ function CatmullRomSpline:ChangeTension(tension: number)
         return
     end
     self.Tension = tension
-    self:_UpdateLength()
+
+    if #self.Points == 4 then
+        self:_UpdateLength()
+    end
 end
 
 
@@ -290,39 +293,6 @@ function CatmullRomSpline:Acceleration(t: number): VectorQuantity
 
     local _, _, c2, c3 = self:GetVectorConstants()
     return 2 * c2 + 6 * c3 * t
-end
-
-
-
---[[    Returns the normal vector of the Vector3 based CatmullRomSpline at the given t value.
-        A CatmullRomSpline is parameterized within the interval [0, 1].    ]]
-function CatmullRomSpline:Normal(t: number): Vector3
-
-    if self._PointType ~= "Vector3" and self._PointType ~= "Instance" then
-        error("CatmullRomSpline must be composed of Vector3/BasePart points to have a normal!")
-    end
-
-    local dTdt = self:Acceleration(t)
-    return dTdt.Unit
-end
-
-
-
---[[    Returns the curvature of the Vector3 based CatmullRomSpline at the given t value.
-        A CatmullRomSpline is parameterized within the interval [0, 1].    ]]
-function CatmullRomSpline:Curvature(t: number): number
-
-    if self._PointType ~= "Vector3" and self._PointType ~= "Instance" then
-        error("CatmullRomSpline must be composed of Vector3/BasePart points to have a curvature!")
-    end
-
-    local drdt = self:Velocity(t)    --// dr/dt
-    local d2rdt2 = self:Acceleration(t)    --// d^2r/dt^2
-    local drdtXd2rdt2 = drdt:Cross(d2rdt2)    --// dr/dt cross d^2r/dt^2
-    local drdtXd2rdt2m = drdtXd2rdt2.Magnitude
-    local drdtm = drdt.Magnitude
-
-    return drdtXd2rdt2m / (drdtm ^ 3)
 end
 
 

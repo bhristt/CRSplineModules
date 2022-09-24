@@ -208,7 +208,7 @@ end
 
 
 
-function CatmullRomPath:PiecewiseTransform(t: number, relativeToLength: boolean?): (CatmullRomSpline.CatmullRomSpline, number)
+function CatmullRomPath:PiecewiseTransform(t: number): (CatmullRomSpline.CatmullRomSpline, number)
 
     local linkedSplines = self.LinkedSplines
     local n_splines = #linkedSplines
@@ -238,7 +238,7 @@ end
 
 
 
-function CatmullRomPath:Position(t: number, relativeToLength: boolean?): VectorQuantity
+function CatmullRomPath:Position(t: number): VectorQuantity
 
     local spline, t_transform = self:PiecewiseTransform(t)
     return spline:Position(t_transform)
@@ -246,7 +246,7 @@ end
 
 
 
-function CatmullRomPath:Velocity(t: number, relativeToLength: boolean?): VectorQuantity
+function CatmullRomPath:Velocity(t: number): VectorQuantity
 
 	local spline, t_transform = self:PiecewiseTransform(t)
 	return spline:Velocity(t_transform)
@@ -258,22 +258,6 @@ function CatmullRomPath:Acceleration(t: number): VectorQuantity
 
 	local spline, t_transform = self:PiecewiseTransform(t)
 	return spline:Acceleration(t_transform)
-end
-
-
-
-function CatmullRomPath:Normal(t: number): VectorQuantity
-
-    local spline, t_transform = self:PiecewiseTransform(t)
-    return spline:Normal(t_transform)
-end
-
-
-
-function CatmullRomPath:Curvature(t: number): number
-
-    local spline, t_transform = self:PiecewiseTransform(t)
-    return spline:Curvature(t_transform)
 end
 
 
