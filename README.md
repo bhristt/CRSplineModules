@@ -55,7 +55,9 @@ local BaseSpline = require(CRSplineModules:WaitForChild("BaseSpline"))
 > | -------- | ---- | ----------- |
 > | **BaseSpline.LengthSegments** | `number` | The number of segments to make for calculating the length of the `BaseSpline` |
 > | **BaseSpline.Length** | `number` | The length of the BaseSpline |
+> | **BaseSpline.Updated** | `RBXScriptSignal` | The event that is fired when the spline has been updated |
 > | **BaseSpline._LengthCache** | `LengthCache` *(see important notes)* | **Internal property**. The cache of the iteration of the BaseSpline |
+> | **BaseSpline.__Bindables** | {[`string`]: `BindableEvent`} | **Internal property**. The table holding all the BindableEvents associated with the BaseSpline object |
 
 *Important notes:*
 ```lua
@@ -78,7 +80,7 @@ type LengthCache = {
 > | **BaseSpline:Curvature(t)** | t: `number` | `number` |
 > | **BaseSpline:ArcLength(t)** | t: `number` | `number` |
 > | **BaseSpline:TransformRelativeToLength(t)** | t: `number` | `number` |
-> | **BaseSpline:CreateTween(object, tweenInfo, props, relativeToLength)** | object: `any`, tweenInfo: `TweenInfo?`, props: {`string`}, relativeToLength: `boolean?` |
+> | **BaseSpline:CreateTween(object, tweenInfo, props, relativeToLength)** | object: `any`, tweenInfo: `TweenInfo?`, props: {`string`}, relativeToLength: `boolean?` | `Tween` |
 > | **BaseSpline:_UpdateLength()** | none | `void` |
 > | **BaseSpline:_CreateProxyTweener(object, props, relativeToLength)** | object: `any`, props: {`string`}, relativeToLength: `boolean?` | `NumberValue` |
 
@@ -118,7 +120,7 @@ local CatmullRomSpline = require(CRSplineModules:WaitForChild("CatmullRomSpline"
 > | **CatmullRomSpline.Points** | `CatmullRomPoints` *(see important notes)* | Contains the points inside the CatmullRomSpline. This can be a table of numbers, Vector2s, Vector3s, BaseParts, or a mix of Vector3s and BaseParts. |
 > | **CatmullRomSpline.Tension** | `number` | The tension parameter of the CatmullRomSpline - this number affects the shape of the generated curve. |
 > | **CatmullRomSpline._PointType** | `string` | **Internal property**. The type of points inside of the CatmullRomSpline object. |
-> | **CatmullRomSpline._Connections** | `{[string]: RBXScriptConnection}` | **Internal property**. A table containing RBXScriptConnections associated with the CatmullRomSpline object. |
+> | **CatmullRomSpline._Connections** | {[`string`]: `RBXScriptConnection`} | **Internal property**. A table containing RBXScriptConnections associated with the CatmullRomSpline object. |
 
 *Important notes:*
 ```lua
@@ -187,3 +189,5 @@ local CatmullRomPath = require(CRSplineModules:WaitForChild("CatmullRomPath"))
 > | **CatmullRomPath:LinkSpline(spline)** | spline: `CatmullRomSpline` | `void` |
 > | **CatmullRomPath:UnlinkSpline(spline)** | spline: `CatmullRomSpline` \| `number` | `void` |
 > | **CatmullRomPath:PiecewiseTransform(t)** | t: `number` | (`CatmullRomSpline`, `number`) |
+> | **CatmullRomPath:_ListenToSplineUpdate(spline)** | spline: `CatmullRomSpline` | `void` |
+> | **CatmullRomPath:_StopListeningToSplineUpdate(spline)** | spline: `CatmullRomSpline` | `void` |

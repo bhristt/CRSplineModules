@@ -20,6 +20,7 @@
             [4]: CatmullRomPoint?
         }
     [number] CatmullRomSpline.Tension
+
     [string] CatmullRomSpline._PointType
     [table] CatmullRomSpline._Connections
         {
@@ -312,11 +313,15 @@ export type CatmullRomSpline = {
 
     Points: {CatmullRomPoint},
     Tension: number,
+    Updated: RBXScriptSignal,
 
     _PointType: string,
 	_Connections: {
 		[BasePart]: RBXScriptConnection,
-	}
+	},
+    _Bindables: {
+        [string]: BindableEvent,
+    },
 } & typeof(CatmullRomSpline)
 
 

@@ -19,6 +19,10 @@
             CatmullRomSpline
         }
     [boolean] CatmullRomPath.LinkConnectedSplinesOnly
+    [table] CatmullRomPath._Connections
+        {
+            [CatmullRomSpline]: RBXScriptConnection
+        }
 
     Inherited from BaseSpline:
 
@@ -37,6 +41,8 @@
     [void] CatmullRomPath:LinkSpline(spline: CatmullRomSpline)
     [void] CatmullRomPath:UnlinkSpline(spline: CatmullRomSpline | number)
     [CatmullRomSpline, number] CatmullRomPath:PiecewiseTransform([number] t)
+    [void] CatmullRomPath:_ListenToSplineUpdate(spline: CatmullRomSpline)
+    [void] CatmullRomPath:_StopListeningToSplineUpdate(spline: CatmullRomSpline)
 
     Inherited from BaseSpline:
 
@@ -74,6 +80,8 @@ function CatmullRomPath.new(splines: {CatmullRomSpline.CatmullRomSpline}?, linkC
 
     self.LinkedSplines = {}
     self.LinkConnectedSplinesOnly = linkConnectedSplinesOnly or false
+
+    self._Connections = {}
 
     if splines ~= nil then
         for i = 1, #splines do
@@ -129,9 +137,11 @@ function CatmullRomPath:LinkSpline(spline: CatmullRomSpline.CatmullRomSpline)
     if lastSpline == nil then
 
         table.insert(linkedSplines, spline)
+        self:_ListenToSplineUpdate(spline)
     elseif not linkConnectedSplinesOnly then
 
         table.insert(linkedSplines, spline)
+        self:_ListenToSplineUpdate(spline)
     else
 
         local lsp = lastSpline.Points
@@ -147,6 +157,7 @@ function CatmullRomPath:LinkSpline(spline: CatmullRomSpline.CatmullRomSpline)
             error("Unable to link the given CatmullRomSpline to the CatmullRomPath!")
         end
         table.insert(linkedSplines, spline)
+        self:_ListenToSplineUpdate(spline)
     end
 
     for i = 1, #linkedSplines do
@@ -180,6 +191,7 @@ function CatmullRomPath:UnlinkSpline(spline: CatmullRomSpline.CatmullRomSpline |
             return
         end
         table.remove(linkedSplines, spline)
+        self:_StopListeningToSplineUpdate(spline)
     else
 
         local splineIndex = table.find(linkedSplines, spline)
@@ -192,6 +204,7 @@ function CatmullRomPath:UnlinkSpline(spline: CatmullRomSpline.CatmullRomSpline |
             end
         end
         table.remove(linkedSplines, splineIndex)
+        self:_StopListeningToSplineUpdate(spline)
     end
 
     if #linkedSplines < 1 then
@@ -234,6 +247,30 @@ function CatmullRomPath:PiecewiseTransform(t: number): (CatmullRomSpline.Catmull
     end
 
     return linkedSplines[splineIndex], t_transform
+end
+
+
+
+function CatmullRomPath:_ListenToSplineUpdate(spline: CatmullRomSpline.CatmullRomSpline)
+
+    self:_StopListeningToSplineUpdate(spline)
+    local connections = self._Connections
+    local splineUpdatedConnection = spline.Updated:Connect(function()
+        self:_UpdateLength()
+    end)
+    connections[spline] = splineUpdatedConnection
+end
+
+
+
+function CatmullRomPath:_StopListeningToSplineUpdate(spline: CatmullRomSpline.CatmullRomSpline)
+
+    local connections = self._Connections
+    local splineUpdatedConnection = connections[spline]
+    if splineUpdatedConnection then
+        splineUpdatedConnection:Disconnect()
+        splineUpdatedConnection[spline] = nil
+    end
 end
 
 

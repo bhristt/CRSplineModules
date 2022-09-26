@@ -14,12 +14,19 @@
 
     [number] BaseSpline.LengthSegments
     [number] BaseSpline.Length
+
+    [RBXScriptSignal] BaseSpline.Updated
+
     [table] BaseSpline._LengthCache
         {
             [number]: {
                 t: number,
                 l: number,
             }
+        }
+    [table] BaseSpline._Bindables
+        {
+            [string]: BindableEvent
         }
 
 [Functions]:
@@ -67,6 +74,12 @@ function BaseSpline.new()
 
     self.LengthSegments = 1000
     self.Length = 0
+
+    local bindables = {}
+    bindables.UpdatedBindable = Instance.new("BindableEvent")
+    self._Bindables = bindables
+
+    self.Updated = bindables.UpdatedBindable.Event
 
     self._LengthCache = {}
 
@@ -164,6 +177,10 @@ function BaseSpline:_UpdateLength()
 
     self.Length = l
     self._LengthCache = lengthCache
+
+    local bindables = self._Bindables
+    local updatedBindable = bindables.UpdatedBindable
+    updatedBindable:Fire()
 end
 
 
