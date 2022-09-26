@@ -71,14 +71,16 @@ type LengthCache = {
 
 > | Function | Parameters | Return Type |
 > | -------- | ---------- | ----------- |
-> | **BaseSpline:Position(t)** | `t: number` | `VectorQuantity` *(see important notes)* |
-> | **BaseSpline:Velocity(t)** | `t: number` | `VectorQuantity` *(see important notes)* |
-> | **BaseSpline:Acceleration(t)** | `t: number` | `VectorQuantity` *(see important notes)* |
-> | **BaseSpline:Normal(t)** | `t: number` | `Vector3` |
-> | **BaseSpline:Curvature(t)** | `t: number` | `number` |
-> | **BaseSpline:ArcLength(t)** | `t: number` | `number` |
-> | **BaseSpline:TransformRelativeToLength(t)** | `t: number` | `number` |
+> | **BaseSpline:Position(t)** |t: `number` | `VectorQuantity` *(see important notes)* |
+> | **BaseSpline:Velocity(t)** | t: `number` | `VectorQuantity` *(see important notes)* |
+> | **BaseSpline:Acceleration(t)** | t: `number` | `VectorQuantity` *(see important notes)* |
+> | **BaseSpline:Normal(t)** | t: `number` | `Vector3` |
+> | **BaseSpline:Curvature(t)** | t: `number` | `number` |
+> | **BaseSpline:ArcLength(t)** | t: `number` | `number` |
+> | **BaseSpline:TransformRelativeToLength(t)** | t: `number` | `number` |
+> | **BaseSpline:CreateTween(object, tweenInfo, props, relativeToLength)** | object: `any`, tweenInfo: `TweenInfo?`, props: {`string`}, relativeToLength: `boolean?` |
 > | **BaseSpline:_UpdateLength()** | none | `void` |
+> | **BaseSpline:_CreateProxyTweener(object, props, relativeToLength)** | object: `any`, props: {`string`}, relativeToLength: `boolean?` | `NumberValue` |
 
 *Important notes:*
 ```lua
@@ -105,7 +107,7 @@ local CatmullRomSpline = require(CRSplineModules:WaitForChild("CatmullRomSpline"
 
 > | Function | Parameters | Return Type |
 > | -------- | ---------- | ----------- |
-> | **CatmullRomSpline.new(points, tension)** | `points: CatmullRomPoints?, tension: number?` *(see important notes)* | `CatmullRomSpline` |
+> | **CatmullRomSpline.new(points, tension)** | points: `CatmullRomPoints?`, tension: `number?` *(see important notes)* | `CatmullRomSpline` |
 
 ## CatmullRomSpline object properties
 
@@ -135,14 +137,14 @@ type CatmullRomPoints = {
 
 > | Function | Parameters | Return Type |
 > | -------- | ---------- | ----------- |
-> | **CatmullRomSpline:ChangeTension(tension)** | `tension: number` | `void` |
-> | **CatmullRomSpline:AddPoint(point, index)** | `point: CatmullRomPoint, index: number?` | `void` |
-> | **CatmullRomSpline:RemovePoint(index)** | `index: number` | `void` |
-> | **CatmullRomSpline:IsValidPoint(point)** | `point: any` | `boolean` |
-> | **CatmullRomSpline:GetVectorPoints()** | none | `{number} \| {Vector2} \| {Vector3}` |
-> | **CatmullRomSpline:GetVectorConstants()** | none | `(VectorQuantity, VectorQuantity, VectorQuantity, VectorQuantity)` |
-> | **CatmullRomSpline:_ListenToPositionChange(part)** | `part: BasePart` | `void` |
-> | **CatmullRomSpline:_StopListeningToPositionChange(part)** | `part: BasePart` | `void` |
+> | **CatmullRomSpline:ChangeTension(tension)** | tension: `number` | `void` |
+> | **CatmullRomSpline:AddPoint(point, index)** | point: `CatmullRomPoint`, index: `number?` | `void` |
+> | **CatmullRomSpline:RemovePoint(index)** | index: `number` | `void` |
+> | **CatmullRomSpline:IsValidPoint(point)** | point: `any` | `boolean` |
+> | **CatmullRomSpline:GetVectorPoints()** | none | {`number`} \| {`Vector2`} \| {`Vector3`} |
+> | **CatmullRomSpline:GetVectorConstants()** | none | (`VectorQuantity`, `VectorQuantity`, `VectorQuantity`, `VectorQuantity`) |
+> | **CatmullRomSpline:_ListenToPositionChange(part)** | part: `BasePart` | `void` |
+> | **CatmullRomSpline:_StopListeningToPositionChange(part)** | part: `BasePart` | `void` |
 
 ---
 
@@ -164,8 +166,8 @@ local CatmullRomPath = require(CRSplineModules:WaitForChild("CatmullRomPath"))
 
 > | Function | Parameters | Return Type |
 > | -------- | ---------- | ----------- |
-> | **CatmullRomPath.new(splines, linkConnectedSplinesOnly)** | `splines: {CatmullRomSpline}?, linkConnectedSplinesOnly: boolean?` | `CatmullRomPath` |
-> | **CatmullRomPath.fromPoints(points, tension)** | `points: CatmullRomPoints, tension: number?` | `CatmullRomPath` |
+> | **CatmullRomPath.new(splines, linkConnectedSplinesOnly)** | splines: {`CatmullRomSpline`}?, linkConnectedSplinesOnly: `boolean?` | `CatmullRomPath` |
+> | **CatmullRomPath.fromPoints(points, tension)** | points: `CatmullRomPoints`, tension: `number?` | `CatmullRomPath` |
 
 ## CatmullRomPath object properties
 
@@ -173,7 +175,7 @@ local CatmullRomPath = require(CRSplineModules:WaitForChild("CatmullRomPath"))
 
 > | Property | Type | Description |
 > | -------- | ---- | ----------- |
-> | **CatmullRomPath.LinkedSplines** | `{CatmullRomSpline}` | A list of the connected `CatmullRomSplines` in order of connection. |
+> | **CatmullRomPath.LinkedSplines** | {`CatmullRomSpline`} | A list of the connected `CatmullRomSplines` in order of connection. |
 > | **CatmullRomPath.LinkConnectedSplinesOnly** | `boolean` | Whether the `CatmullRomPath` should only connect splines that are connected via three points. |
 
 ## CatmullRomPath object functions
@@ -182,6 +184,6 @@ local CatmullRomPath = require(CRSplineModules:WaitForChild("CatmullRomPath"))
 
 > | Function | Parameters | Return Type |
 > | -------- | ---------- | ----------- |
-> | **CatmullRomPath:LinkSpline(spline)** | `spline: CatmullRomSpline` | `void` |
-> | **CatmullRomPath:UnlinkSpline(spline)** | `spline: CatmullRomSpline \| number` | `void` |
-> | **CatmullRomPath:PiecewiseTransform(t)** | `t: number` | `(CatmullRomSpline, number)` |
+> | **CatmullRomPath:LinkSpline(spline)** | spline: `CatmullRomSpline` | `void` |
+> | **CatmullRomPath:UnlinkSpline(spline)** | spline: `CatmullRomSpline` \| `number` | `void` |
+> | **CatmullRomPath:PiecewiseTransform(t)** | t: `number` | (`CatmullRomSpline`, `number`) |

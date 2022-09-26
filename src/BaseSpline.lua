@@ -24,7 +24,6 @@
 
 [Functions]:
 
-    [void] BaseSpline:_UpdateLength()
     [VectorQuantity] BaseSpline:Position([number] t)
     [VectorQuantity] BaseSpline:Velocity([number] t)
     [VectorQuantity] BaseSpline:Acceleration([number] t)
@@ -36,11 +35,21 @@
         type PropTable = {
             [string]: number | Vector2 | Vector3 | CFrame
         }
+    [void] BaseSpline:_UpdateLength()
+    [NumberValue] BaseSpline:_CreateProxyTweener([any] object, [{string}] props, [boolean?] relativeToLength)
 
 ]]
 
 
 --// constants
+local DEFAULT_TWEEN_TIME = 10
+local DEFAULT_TWEEN_EASING_STYLE = Enum.EasingStyle.Sine
+local DEFAULT_TWEEN_EASING_DIRECTION = Enum.EasingDirection.Out
+local DEFAULT_TWEEN_REPEAT_COUNT = 0
+local DEFAULT_TWEEN_REVERSES = false
+local DEFAULT_TWEEN_DELAY = 0
+
+
 local PROTOTYPE_ERROR = "This is a prototype function, it should never be called from the BaseSpline!"
 
 
@@ -99,7 +108,7 @@ end
 function BaseSpline:Normal(t: number): Vector3
 
     local dTdt = self:Acceleration(t)
-    if typeof(dTdt ~= "Vector3") then
+    if typeof(dTdt) ~= "Vector3" then
         error("BaseSpline:Normal() only works with Vector3 constructed splines!")
     end
     return dTdt.Unit
@@ -241,39 +250,107 @@ do
 
     local tweenService = game:GetService("TweenService")
 
-    local function checkVectorValues(tbl: {[any]: any}): boolean
+    --// returns the length of the given dictionary
+    local function dictLen(
+        dict: {[string]: any}
+    ): number
 
-        for i, v in pairs(tbl) do
-            if typeof(v) ~= "number"
-            and typeof(v) ~= "Vector2"
-            and typeof(v) ~= "Vector3" then
-                return false
-            end
+        local n = 0
+        for _, _ in pairs(dict) do
+            n += 1
         end
-        return true
+        return n
     end
 
-    local function instanceDefaultProperties(instance: Instance, props: {[string]: VectorQuantity}): {[string]: VectorQuantity}
+    --// returns whether the given value is a numeric value
+    --// numeric values are values that can be linearly interpolated
+    local function isNumericValue(n: any): boolean
+
+        return
+            typeof(n) == "number"
+            or typeof(n) == "Vector2"
+            or typeof(n) == "Vector3"
+            or typeof(n) == "CFrame"
+    end
+
+    --// returns the default properties of the instance specified
+    --// in the given property tables
+    local function objectDefaultNumericProperties(
+        object: any,
+        props: {string}
+    ): {[string]: VectorQuantity}
 
         local defaultProperties = {}
-        for prop, val in pairs(props) do
+        for _, prop in pairs(props) do
             local success, default = pcall(function()
-                return instance[prop]
+                return object[prop]
             end)
-            if success and typeof(instance[prop]) == typeof(val) then
+            if success and isNumericValue(default) then
                 defaultProperties[prop] = default
             end
         end
         return defaultProperties
     end
 
-    function BaseSpline:CreateTween(
-        object: Instance,
-        tweenInfo: TweenInfo?,
-        props: {[string]: number | Vector2 | Vector3 | CFrame},
-        relativeToLength: boolean?)
+    function BaseSpline:_CreateProxyTweener(
+        object: any,
+        props: {string},
+        relativeToLength: boolean?
+    )
 
-        
+        local numberValue = Instance.new("NumberValue")
+        numberValue:GetPropertyChangedSignal("Value"):Connect(function()
+
+            local t = numberValue.Value
+            for i = 1, #props do
+
+                local propIndex = props[i]
+                local propType = typeof(object[propIndex])
+                local t_transform = relativeToLength and self:TransformRelativeToLength(t) or t
+
+                if propType == "number" or propType == "Vector2" or propType == "Vector3" then
+
+                    object[propIndex] = self:Position(t_transform)
+                elseif propType == "CFrame" then
+
+                    local position = self:Position(t_transform)
+                    local direction = self:Velocity(t_transform).Unit
+                    local normal = self:Normal(t_transform)
+                    object[propIndex] = CFrame.lookAt(position, position + direction, normal)
+                end
+            end
+        end)
+
+        return numberValue
+    end
+
+    --// creates a tween object for the given object
+    --// playing the tween will make the object traverse
+    --// through the spline
+    function BaseSpline:CreateTween(
+        object: any,
+        tweenInfo: TweenInfo?,
+        props: {string},
+        relativeToLength: boolean?
+    ): Tween
+
+        local defaultNumericProperties = objectDefaultNumericProperties(object, props)
+
+        if dictLen(defaultNumericProperties) == 0 then
+            error("Cannot find the given properties inside the given object!")
+        end
+
+        local processedTweenInfo = tweenInfo or TweenInfo.new(
+            DEFAULT_TWEEN_TIME,
+            DEFAULT_TWEEN_EASING_STYLE,
+            DEFAULT_TWEEN_EASING_DIRECTION,
+            DEFAULT_TWEEN_REPEAT_COUNT,
+            DEFAULT_TWEEN_REVERSES,
+            DEFAULT_TWEEN_DELAY
+        )
+        local proxyTweener = self:_CreateProxyTweener(object, props, relativeToLength)
+        local tween = tweenService:Create(proxyTweener, processedTweenInfo, {Value = 1})
+        return tween
     end
 end
 

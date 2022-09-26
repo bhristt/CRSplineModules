@@ -6,60 +6,60 @@
 --// api:
 --[[
 
-    [Constructor]:
+[Constructor]:
 
-        [CatmullRomSplineObject] CatmullRomSpline.new(points: {CatmullRomSplinePoint}?, tension: number?)
+    [CatmullRomSplineObject] CatmullRomSpline.new(points: {CatmullRomSplinePoint}?, tension: number?)
 
-    [Properties]:
+[Properties]:
 
-		[table] CatmullRomSpline.Points
-			{
-				[1]: CatmullRomPoint?,
-				[2]: CatmullRomPoint?,
-				[3]: CatmullRomPoint?,
-				[4]: CatmullRomPoint?
-			}
-		[number] CatmullRomSpline.Tension
-		[string] CatmullRomSpline._PointType
-		[table] CatmullRomSpline._Connections
-			{
-				[BasePart]: RBXScriptConnection
-			}
+    [table] CatmullRomSpline.Points
+        {
+            [1]: CatmullRomPoint?,
+            [2]: CatmullRomPoint?,
+            [3]: CatmullRomPoint?,
+            [4]: CatmullRomPoint?
+        }
+    [number] CatmullRomSpline.Tension
+    [string] CatmullRomSpline._PointType
+    [table] CatmullRomSpline._Connections
+        {
+            [BasePart]: RBXScriptConnection
+        }
 
-        Inherited from BaseSpline:
+    Inherited from BaseSpline:
 
-            [number] CatmullRomSpline.LengthSegments
-            [number] CatmullRomSpline.Length
-            [table] CatmullRomSpline._LengthCache
-                {
-                    [number]: {
-                        t: number,
-                        l: number,
-                    }
+        [number] CatmullRomSpline.LengthSegments
+        [number] CatmullRomSpline.Length
+        [table] CatmullRomSpline._LengthCache
+            {
+                [number]: {
+                    t: number,
+                    l: number,
                 }
+            }
 
-    [Functions]:
+[Functions]:
 
-        [void] CatmullRomSpline:ChangeTension([number] tension)
-        [void] CatmullRomSpline:AddPoint([CatmullRomPoint] point, [number?] index)
-        [void] CatmullRomSpline:RemovePoint([number] index)
-        [boolean] CatmullRomSpline:IsValidPoint([any] point)
-        [{number} | {Vector2} | {Vector3}] CatmullRomSpline:GetVectorPoints()
-        [VectorQuantity, VectorQuantity, VectorQuantity, VectorQuantity] CatmullRomSpline:GetVectorConstants()
+    [void] CatmullRomSpline:ChangeTension([number] tension)
+    [void] CatmullRomSpline:AddPoint([CatmullRomPoint] point, [number?] index)
+    [void] CatmullRomSpline:RemovePoint([number] index)
+    [boolean] CatmullRomSpline:IsValidPoint([any] point)
+    [{number} | {Vector2} | {Vector3}] CatmullRomSpline:GetVectorPoints()
+    [VectorQuantity, VectorQuantity, VectorQuantity, VectorQuantity] CatmullRomSpline:GetVectorConstants()
 
-        [void] CatmullRomSpline:_ListenToPositionChange([BasePart] part)
-        [void] CatmullRomSpline:_StopListeningToPositionChange([BasePart] part)
+    [void] CatmullRomSpline:_ListenToPositionChange([BasePart] part)
+    [void] CatmullRomSpline:_StopListeningToPositionChange([BasePart] part)
 
-        Inherited from BaseSpline:
+    Inherited from BaseSpline:
 
-            [void] CatmullRomSpline:_UpdateLength()
-            [VectorQuantity] CatmullRomSpline:Position([number] t)
-            [VectorQuantity] CatmullRomSpline:Velocity([number] t)
-            [VectorQuantity] CatmullRomSpline:Acceleration([number] t)
-            [Vector3] CatmullRomSpline:Normal([number] t)
-            [number] CatmullRomSpline:Curvature([number] t)
-            [number] CatmullRomSpline:ArcLength([number] t)
-            [number] CatmullRomSpline:TransformRelativeToLength([number] t)
+        [void] CatmullRomSpline:_UpdateLength()
+        [VectorQuantity] CatmullRomSpline:Position([number] t)
+        [VectorQuantity] CatmullRomSpline:Velocity([number] t)
+        [VectorQuantity] CatmullRomSpline:Acceleration([number] t)
+        [Vector3] CatmullRomSpline:Normal([number] t)
+        [number] CatmullRomSpline:Curvature([number] t)
+        [number] CatmullRomSpline:ArcLength([number] t)
+        [number] CatmullRomSpline:TransformRelativeToLength([number] t)
 
 ]]
 
@@ -142,7 +142,15 @@ end
         CatmullRomSpline.    ]]
 function CatmullRomSpline:IsValidPoint(point: any): boolean
 
-    return isCatmullRomPoint(point) and ( self._PointType == typeof(point) )
+    local matchesPoints = false
+    if self._PointType == "Vector3" and typeof(point) == "Instance" and point:IsA("BasePart") then
+        matchesPoints = true
+    elseif self._PointType == "Instance" and typeof(point) == "Vector3" then
+        matchesPoints = true
+    elseif self._PointType == typeof(point) then
+        matchesPoints = true
+    end
+    return isCatmullRomPoint(point) and ( matchesPoints )
 end
 
 
