@@ -296,7 +296,7 @@ do
         object: any,
         props: {string},
         relativeToLength: boolean?
-    )
+    ): NumberValue
 
         local numberValue = Instance.new("NumberValue")
         numberValue:GetPropertyChangedSignal("Value"):Connect(function()
