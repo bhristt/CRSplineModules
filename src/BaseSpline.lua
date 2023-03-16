@@ -367,6 +367,11 @@ do
         )
         local proxyTweener = self:_CreateProxyTweener(object, props, relativeToLength)
         local tween = tweenService:Create(proxyTweener, processedTweenInfo, {Value = 1})
+
+        tween.Destroying:Connect(function()
+            proxyTweener:Destroy()
+        end)
+
         return tween
     end
 end
