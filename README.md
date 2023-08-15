@@ -14,7 +14,7 @@ https://www.roblox.com/library/11017348135/CRSplineModules-V2-0-0
 
 You can see the documentation of CRSplineModules on the devforum:
 
-(insert link here)
+https://devforum.roblox.com/t/crsplinemodules-v200-smooth-curve-that-goes-through-control-points/1568205?u=bhristt
 
 ---
 ## CRSplineModules API
